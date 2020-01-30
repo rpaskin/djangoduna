@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simple Storage</title>
+
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+
+</head>
+<body>
+
+	<div class="row">
+    <form class="col s12">
+      <div class="row">
+        <div class="input-field col s6">
+				  <form action="#">
+				    <p class="range-field">
+					    <input type="range" name="myVal" id="myVal" min="0" max="1000" value="0" oninput="this.form.myValInput.value=this.value" />
+					    <input type="number" name="myValInput" min="0" max="1000" value="0" oninput="this.form.myVal.value=this.value" />
+				    </p>
+				  </form>
+        </div>
+        <div class="input-field col s6">
+					<a class="waves-effect waves-light btn" onclick="window.set()">Set</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+	<div class="row">
+    <form class="col s12">
+      <div class="row">
+        <div class="input-field col s6">
+          <input disabled value="Aperte GET" id="contractVal" type="text">
+        </div>
+        <div class="input-field col s6">
+					<a class="waves-effect waves-light btn" onclick="window.get()">Get</a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+	<script type="text/javascript">
+// See https://solidity.readthedocs.io/en/v0.5.11/introduction-to-smart-contracts.html
+		const bytecode = {
+	"linkReferences": {},
+	"object": "608060405234801561001057600080fd5b5060c68061001f6000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c806360fe47b11460375780636d4ce63c146062575b600080fd5b606060048036036020811015604b57600080fd5b8101908080359060200190929190505050607e565b005b60686088565b6040518082815260200191505060405180910390f35b8060008190555050565b6000805490509056fea265627a7a7231582083261b665bebfd75c556b13019352ea42507c96214a77b67e484ec5c68227e0964736f6c634300050b0032",
+	"opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0xC6 DUP1 PUSH2 0x1F PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH1 0xF JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x4 CALLDATASIZE LT PUSH1 0x32 JUMPI PUSH1 0x0 CALLDATALOAD PUSH1 0xE0 SHR DUP1 PUSH4 0x60FE47B1 EQ PUSH1 0x37 JUMPI DUP1 PUSH4 0x6D4CE63C EQ PUSH1 0x62 JUMPI JUMPDEST PUSH1 0x0 DUP1 REVERT JUMPDEST PUSH1 0x60 PUSH1 0x4 DUP1 CALLDATASIZE SUB PUSH1 0x20 DUP2 LT ISZERO PUSH1 0x4B JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 ADD SWAP1 DUP1 DUP1 CALLDATALOAD SWAP1 PUSH1 0x20 ADD SWAP1 SWAP3 SWAP2 SWAP1 POP POP POP PUSH1 0x7E JUMP JUMPDEST STOP JUMPDEST PUSH1 0x68 PUSH1 0x88 JUMP JUMPDEST PUSH1 0x40 MLOAD DUP1 DUP3 DUP2 MSTORE PUSH1 0x20 ADD SWAP2 POP POP PUSH1 0x40 MLOAD DUP1 SWAP2 SUB SWAP1 RETURN JUMPDEST DUP1 PUSH1 0x0 DUP2 SWAP1 SSTORE POP POP JUMP JUMPDEST PUSH1 0x0 DUP1 SLOAD SWAP1 POP SWAP1 JUMP INVALID LOG2 PUSH6 0x627A7A723158 KECCAK256 DUP4 0x26 SHL PUSH7 0x5BEBFD75C556B1 ADDRESS NOT CALLDATALOAD 0x2e LOG4 0x25 SMOD 0xc9 PUSH3 0x14A77B PUSH8 0xE484EC5C68227E09 PUSH5 0x736F6C6343 STOP SDIV SIGNEXTEND STOP ORIGIN ",
+	"sourceMap": "35:204:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;35:204:0;;;;;;;"
+}
+		const contractABI = [
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "x",
+				"type": "uint256"
+			}
+		],
+		"name": "set",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "get",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+	const contractAddress = "0x9E6702e2118B648bCb7eD90D0A475CEAa0C6BF7b"; // Ropsten
+
+	window.get = function(){
+    window.SimpleStorage.methods.get().call().then((value)=>{
+      $("#contractVal").val(value);
+    });		
+	}    	
+
+	window.set = function(){
+		value = $("#myVal").val();
+    window.SimpleStorage.methods.set(value).send(
+    	{
+    		from: window.coinbase
+    	}).then(function(res){
+    		console.log(res);
+    	});
+	}    	
+	// https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
+	  window.addEventListener('load', async () => {
+	      console.log("Loading web3...");
+	      // Modern dapp browsers...
+	      if (window.ethereum) {
+
+						window.ethereum.autoRefreshOnNetworkChange = false;
+
+	          window.web3 = new Web3(ethereum);
+	          try {
+	            // Request account access if needed
+	            await ethereum.enable();
+	            // Acccounts now exposed
+	            // web3.eth.sendTransaction({/* ... */});
+
+	            window.web3.eth.getCoinbase(function(a, coinbase){
+	              window.coinbase = coinbase;
+	              console.log('window.coinbase:', window.coinbase);
+	            });
+
+	            window.SimpleStorage = new web3.eth.Contract(
+	              contractABI,
+	              contractAddress
+	            );
+	            console.log(121, window.SimpleStorage);
+	          } catch (error) {
+	              // User denied account access...
+	          }
+	      }
+	      // Legacy dapp browsers...
+	      else if (window.web3) {
+	          window.web3 = new Web3(web3.currentProvider);
+	          // Acccounts always exposed
+	          web3.eth.sendTransaction({/* ... */});
+	      }
+	      // Non-dapp browsers...
+	      else {
+	          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+	      }
+	  });
+	</script>
+
+</body>
+</html>

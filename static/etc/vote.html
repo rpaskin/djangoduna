@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Penny Auction</title>
+    <meta name="turbolinks-cache-control" content="no-cache">
+
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+
+    <script
+      src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+      integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+      crossorigin="anonymous"></script>
+
+    <script src="web3.min.js"></script>
+
+  </head>
+
+  <body>
+    <form onsubmit="return false;">
+      <h1>Penny Auction: O menor lance unico ganha!</h1>
+
+      <input type="text" id="bid">
+      <button onclick="window.bid();">Dar um Lance</button>
+
+      <br><br><br>
+
+      Comeco do Leilao:<span class="result" id="start">&nbsp;</span><br>
+      Fim do Leilao:<span class="result" id="end">&nbsp;</span><br>
+      Vencedor:<span class="result" id="winner">&nbsp;</span><br>
+
+      <button onclick="window.refresh();">Atualizar</button>
+
+    </form>
+
+
+<style type="text/css" media="screen">
+  input {
+    font-size: 250%;
+  }
+
+  button {
+    font-size: 200%;
+    clear:right;
+  }
+
+  .result {
+    border: 1px solid #333;
+    min-width: 100px;
+    min-height: 50px;
+  }
+</style>
+
+
+<script type="text/javascript">
+const jsonInterface = [
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "bid",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "startAuction",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "start",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "winner",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "end",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "endAuction",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "winner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionEnded",
+    "type": "event"
+  }
+];
+
+const contractAddress =
+  "0x0e289dddd43d844ea0ea750679f9418d2505c897";
+
+  window.bid = function(){
+    console.log(172,parseInt($("#bid").val()));
+    window.PennyAuction.methods.bid().send({
+      from: window.coinbase, value: parseInt($("#bid").val()) }).then(
+        // .once('transactionHash', console.log )
+        // .on('error',             console.log )
+        // .then(
+        (a,b) => {
+          console.log(65,a,b,parseInt($("#bid").val()));
+          alert("Bid placed:"+$("#bid").val());
+        }
+    );
+  }
+
+  window.refresh = function(){
+    window.PennyAuction.methods.owner().call().then((owner)=>{
+      console.log(72,'refreshing... owner:',owner);
+    });
+    window.PennyAuction.methods.winner().call().then((winner)=>{
+      $("#winner").html(winner);
+    });
+    window.PennyAuction.methods.start().call().then((start)=>{
+      let date = new Date(parseInt(start) * 1000);
+      $("#start").html(date.toString());
+    });
+    window.PennyAuction.methods.end().call().then((end)=>{
+      let date = new Date(parseInt(end) * 1000);
+      $("#end").html(date.toString());
+    });
+  }
+
+  window.addEventListener('load', async () => {
+      console.log(84);
+      // Modern dapp browsers...
+      if (window.ethereum) {
+          window.web3 = new Web3(ethereum);
+          try {
+            // Request account access if needed
+            await ethereum.enable();
+            // Acccounts now exposed
+            // web3.eth.sendTransaction({/* ... */});
+
+            window.web3.eth.getCoinbase(function(a, coinbase){
+              window.coinbase = coinbase;
+              console.log(97, 'window.coinbase:', window.coinbase);
+            });
+
+            window.PennyAuction = new web3.eth.Contract(
+              jsonInterface,
+              contractAddress
+            );
+            console.log(657, window.PennyAuction);
+          } catch (error) {
+              // User denied account access...
+          }
+      }
+      // Legacy dapp browsers...
+      else if (window.web3) {
+          window.web3 = new Web3(web3.currentProvider);
+          // Acccounts always exposed
+          web3.eth.sendTransaction({/* ... */});
+      }
+      // Non-dapp browsers...
+      else {
+          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+      }
+  });
+
+  // window.addEventListener('load', async () => {
+  //   // If the browser has injected Web3.js
+  //   if (window.web3) {
+  //     // Then backup the good old injected Web3, sometimes it's usefull:
+  //     window.web3old = window.web3;
+  //     // And replace the old injected version by the latest build of Web3.js version 1.0.0
+  //     window.web3new = new Web3(window.web3.currentProvider);
+  //   }
+
+  //   // Modern dapp browsers...
+  //   if (window.ethereum) {
+  //       window.web3 = new Web3(ethereum);
+  //       console.log(225, window.web3.version);
+  //       try {
+  //           // Request account access if needed
+  //           await ethereum.enable();
+  //           // Acccounts now exposed
+  //           // web3.eth.sendTransaction({/* ... */});
+  //       } catch (error) {
+  //           // User denied account access...
+  //       }
+  //     }
+  //     // Legacy dapp browsers...
+  //     else if (window.web3) {
+  //         window.web3 = new Web3(web3.currentProvider);
+  //         // Acccounts always exposed
+  //         // web3.eth.sendTransaction({/* ... */});
+  //     }
+  //     // Non-dapp browsers...
+  //     else {
+  //         alert('Rede Ethereum não detectada no seu navegador. Verifique a conta no plugin MetaMask!');
+  //     }
+  //   });
+
+  //   window.web3.eth.getCoinbase(function(a, coinbase){
+  //     window.coinbase = coinbase;
+  //     console.log(110, window.coinbase);
+  //   });
+
+/*
+
+    window.PennyAuction = new web3.eth.Contract(
+      jsonInterface,
+      "0x0e289dddd43d844ea0ea750679f9418d2505c897"
+    );
+    console.log(664, window.PennyAuction);
+
+    // a list for saving subscribed event instances
+    const subscribedEvents = {}
+    // Subscriber method
+    const subscribeLogEvent = (window.PennyAuction, eventName) => {
+      const eventJsonInterface = web3.utils._.find(
+        window.PennyAction._jsonInterface,
+        o => o.name === eventName && o.type === 'event',
+      )
+      const subscription = web3.eth.subscribe('logs', {
+        address: window.PennyAuction.options.address,
+        topics: [eventJsonInterface.signature]
+      }, (error, result) => {
+        if (!error) {
+          const eventObj = web3.eth.abi.decodeLog(
+            eventJsonInterface.inputs,
+            result.data,
+            result.topics.slice(1)
+          )
+          console.log(`New ${eventName}!`, eventObj)
+        }
+      })
+      subscribedEvents[eventName] = subscription
+    };
+*/
+
+
+/*
+  function execute(args){
+debugConsole([168, args]);
+
+    let show_tx_link = (el_id, tx, remove) => {
+      debugConsole([ 184, el_id, tx, $("#tx_hash_"+el_id).html() ]);
+      var a = document.createElement('a');
+      a.setAttribute("target", "_blank");
+      var txt = document.createTextNode(tx);
+      a.appendChild(txt);
+      a.href = "https://ropsten.etherscan.io/tx/"+tx;
+      $("#tx_hash_"+el_id+"").html("");
+      $("#tx_hash_"+el_id).append(a);
+      if (remove) $("#execute_"+el_id).remove();
+    }
+
+    let show_temp_tx_hash = (tx) => {
+      let el_id = args['id'];
+      debugConsole([184, "temp transactionHash", el_id, tx]);
+      $('.bd-espera-popup').modal({});
+      show_tx_link(el_id, tx, false);
+      debugConsole([198, "temp transactionHash", tx]);
+    }
+
+    let show_error = (err) => {
+      debugConsole([200, "error from send:", err]);
+      $('.bd-erro-popup').find('.modal-message').text(err["message"]);
+      $('.bd-erro-popup').modal({});
+    }
+
+    let post_tx_id = (el_id, tx) => {
+      var req = $.ajax({
+        type: "POST",
+        url: "/transaction/update/"+el_id+"/"+tx,
+        data: {
+          id: el_id,
+          tx: tx
+        },
+        dataType: "json"
+      }).done(function(data, p2){
+        show_tx_link(el_id, tx, true);
+        debugConsole([202, "DONE, tx update no back-end", tx]);
+      }).fail(function(data, p2){
+        debugConsole([204, "FALHA, back-end não atualizado com tx", tx]);
+      });
+    }
+
+    let handle_tx_result = (receipt) => {
+      debugConsole([ 216, receipt]);
+      post_tx_id(args['id'], receipt["transactionHash"]);
+      $('.bd-erro-popup').find('.modal-message').text(receipt["transactionHash"]);
+      $('.bd-pronto-popup').modal({});
+    }
+
+    let rsv = sigToRsvArray(args["rsv"]);
+
+    debugConsole([ 172, args["rsv"], sigToRsvArray(args["rsv"]), window.coinbase ]);
+    debugConsole([ 173, args]);
+
+    if (args["action"] == "AddSigner") {
+      internal_id = web3.utils.soliditySha3({t: 'bytes32', v: web3.utils.asciiToHex(args["internal_id"]) });
+      window.SignDoc.methods.addSigner(rsv[0], rsv[1], rsv[2], args["sender"], args["signer"], internal_id).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+    else if (args["action"] == "AddAdmin") {
+      window.SignDoc.methods.addAdminByAdmin(rsv[0], rsv[1], rsv[2], args["sender"], args["signer"]).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+    else if (args["action"] == "SuspendAdmin") {
+      window.SignDoc.methods.suspendAdminByAdmin(rsv[0], rsv[1], rsv[2], args["sender"], args["signer"]).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+    else if (args["action"] == "AddDocument") {
+      window.SignDoc.methods.addDocument(rsv[0], rsv[1], rsv[2], args["sender"], prefixBytes32(args["document_hash"])).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+    else if (args["action"] == "SuspendSigner") {
+      window.SignDoc.methods.suspendSigner(rsv[0], rsv[1], rsv[2], args["sender"], args["signer"]).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+    else if (args["action"] == "SignDocument") {
+      internal_id = web3.utils.soliditySha3({t: 'bytes32', v: web3.utils.asciiToHex(args["internal_id"]) });
+      window.SignDoc.methods.addSignature(rsv[0], rsv[1], rsv[2], args["sender"], args["signer"], prefixBytes32(args["document_hash"])).
+        send({ from: window.coinbase })
+          .once('transactionHash', show_temp_tx_hash )
+          .on('error',             show_error )
+          .then( handle_tx_result );
+    }
+  }
+*/
+
+  // });
+</script>
+</body>
+</html>

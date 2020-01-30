@@ -1,0 +1,82 @@
+hgroup {
+    /* background-color: lightgray; */
+}
+h1 {
+    color: #DA70D6;
+    font-family: 'Gayathri', sans-serif;
+}
+h2 {
+    color: purple;
+    font-family: 'Indie Flower', cursive;
+    font-size: 200%;
+}
+.umtitulo {
+    /* color: cyan;     */
+    border: 2px dotted rgb(240,128,128);
+    padding: 0.5em;
+}
+#meuautor {
+    color: brown;
+}
+body {
+    color: white;
+    font-size: 150%;
+    background-image: url("duna.jpg");
+    background-color: black;
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: top;
+    /* background-size: 50vw;
+    background-repeat: no-repeat; */
+}
+div.poema {
+    background-color:rgba(255,255,255,0.3);
+    padding:1rem;
+}
+div.poema p:nth-child(even){
+    background-color:rgba(0,255,0,0.2);
+}
+#sobreoautor {
+    color: rgb(200,200,200);
+    font-size: 1.3vw;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 1em;
+    width: 30vw;
+
+    position: fixed;
+    right: 2vw;
+    top: 20vh;
+
+    background-color: rgba(255,255,255,0.7);
+    
+    color: gray;
+}
+
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: #111;
+}
+
+.active {
+  background-color: #4CAF50;
+}

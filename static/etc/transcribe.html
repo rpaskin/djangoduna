@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta http-equiv="Content-Language" content="pt-br">
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Teste voz</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+	<script src="https://unpkg.com/anycontrol/dist/index.umd.min.js"></script>
+</head>
+<body>
+
+<h1>Teste Transcrição</h1>
+
+<h2 id="result">(em portugues)</h2>
+<h4>Confiança: <span id="confidence"></span></h4>
+
+<button id="listen">Começar a Ouvir</button>
+<button id="mute">Parar</button>
+
+<img src="https://cdn.appstorm.net/android.appstorm.net/android/files/2013/11/atr.png" id="recording" style="display: none;width: 3rem;height: auto;">
+
+<script>
+  var ctrl = new anycontrol({lang:"pt-br"});
+
+	Zepto(function($){
+ 	  console.log(28,'Ready!', ctrl);
+
+		window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+
+		if ('SpeechRecognition' in window) {
+		  console.log(29, 'speech recognition API supported');
+			const recognition = new window.SpeechRecognition();
+			recognition.lang = 'pt-BR';
+			// recognition.continuous = true;
+			recognition.interimResults = true;
+			recognition.onresult = (event) => {
+			  const speechToText = event.results[0]; //.transcript;
+			  $("#result").text(speechToText[0].transcript);
+			  $("#confidence").text(speechToText[0].confidence);
+			  console.log(34,speechToText);
+			  if (speechToText.isFinal){
+		 	  	$("#mute").click();
+			  }
+			}
+
+	 	  $("#listen").click(()=>{
+	 	  	recognition.start();
+	 	  	$("#recording").toggle();
+	 	  	$("body").css("background-color", "rgba(255,230,240,1)")
+	 	  });
+
+	 	  $("#mute").click(()=>{
+	 	  	recognition.stop();
+	 	  	$("#recording").toggle();
+	 	  	$("body").css("background-color","rgba(255,255,255,1)")
+	 	  });
+		} else {
+		  console.log(31, 'ERR speech recognition API NOT supported');
+		}
+	})
+</script> 
+
+</body>
+</html>
